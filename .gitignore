@@ -3,10 +3,12 @@
 *.env
 
 # logs caches, etc
-external/TrackNetV2-pytorch/
-external/TrackNetV2-pytorch/runs/
+external/*
 *.log
 *.cache
 __pycache__/
 .DS_Store
 archive/
+
+# files
+*.mp4

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence, Tuple
@@ -9,11 +8,7 @@ import cv2
 import numpy as np
 import torch
 import torchvision.transforms.functional as TF
-from dotenv import load_dotenv
-
-# Load environment variables from .env at repo root if present.
-REPO_ROOT = Path(__file__).resolve().parents[3]
-load_dotenv(REPO_ROOT / ".env", override=False)
+from src.padel.settings import get_env
 
 
 @dataclass
@@ -47,7 +42,7 @@ class TrackVNETHandler:
         if str(self.external_root) not in sys.path:
             sys.path.append(str(self.external_root))
 
-        from models.tracknet import TrackNet  # imported from external package
+        from models.tracknet import TrackNet  # external repo
 
         if not self.weights_path.exists():
             raise FileNotFoundError(
@@ -62,22 +57,13 @@ class TrackVNETHandler:
         return model
 
     def _get_external_root(self) -> Path:
-        env_root = os.getenv("TRACKNETV2_ROOT")
-        if not env_root:
-            raise ValueError(
-                "TRACKNETV2_ROOT is not set. Define it in .env or environment to point to the TrackNetV2 repo."
-            )
+        env_root = get_env("TRACKNETV2_ROOT", required=True)
         return Path(env_root)
 
     def _resolve_weights(self, weights_path: Optional[Path]) -> Path:
         if weights_path:
             return Path(weights_path)
-        env_weights = os.getenv("TRACKNETV2_WEIGHTS")
-        if not env_weights:
-            raise ValueError(
-                "TRACKNETV2_WEIGHTS is not set and no weights_path was provided. "
-                "Define it in .env or pass weights_path explicitly."
-            )
+        env_weights = get_env("TRACKNETV2_WEIGHTS", required=True)
         return Path(env_weights)
 
     def _frames_to_tensor(self, frames: Sequence[np.ndarray]) -> torch.Tensor:
@@ -107,7 +93,9 @@ class TrackVNETHandler:
         width, height = frame_size
         detections: List[BallDetection] = []
         for i in range(3):
-            visible, cx_pred, cy_pred = get_shuttle_position(preds[i] > 0.5)
+            # Match detect.py: threshold, cast to uint8 0-255 before contour finding.
+            mask = (preds[i] > 0.5).astype("uint8") * 255
+            visible, cx_pred, cy_pred = get_shuttle_position(mask)
             cx = int(cx_pred * width / self.image_size[1])
             cy = int(cy_pred * height / self.image_size[0])
             detections.append(
