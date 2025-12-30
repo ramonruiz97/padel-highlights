@@ -9,9 +9,5 @@ Padel highlights pipeline (WIP).
 ## TrackNetV2
 Use the external repo’s patched model (apply `tf2torch/diff.txt`) and run detections with your video:
 ```
-python external/TrackNetV2-pytorch/detect.py --source data/raw/match.mp4 --weights external/TrackNetV2-pytorch/tf2torch/track.pt --save-txt
-```
-Or a minimal smoke test with the handler:
-```
-python -m src.padel.pipelines.run_tracknet_demo --video data/raw/match.mp4 --max-frames 100
+python -m src.padel.pipelines.run_tracknet_demo --video data/raw/match.mp4
 ```
