@@ -1,0 +1,12 @@
+moviepy
+numpy
+opencv-python
+pandas
+requests
+scipy
+torch
+torchsummary
+torchvision
+tqdm
+ultralytics
+python-dotenv

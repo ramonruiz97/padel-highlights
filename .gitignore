@@ -1,0 +1,12 @@
+# env related
+.venv/
+*.env
+
+# logs caches, etc
+external/TrackNetV2-pytorch/
+external/TrackNetV2-pytorch/runs/
+*.log
+*.cache
+__pycache__/
+.DS_Store
+archive/
